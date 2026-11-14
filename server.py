@@ -40,12 +40,32 @@ except ImportError:
         content = preprocess_yaml(content)
         data = {"actions": []}
         current_action = None
+        multiline_key = None
+        multiline_lines = []
+
+        def flush_multiline():
+            nonlocal multiline_key, multiline_lines
+            if current_action is not None and multiline_key and multiline_lines:
+                current_action[multiline_key] = " && ".join(multiline_lines)
+            multiline_key = None
+            multiline_lines = []
+
         for raw_line in content.splitlines():
             line = raw_line.strip()
             if not line or line.startswith("#"):
                 continue
             if line.startswith("actions:"):
                 continue
+
+            # Detect indented continuation of multiline block scalar (| or >)
+            if multiline_key and (raw_line.startswith("    ") or raw_line.startswith("\t")):
+                clean_chunk = line.rstrip("\\").rstrip("&").strip()
+                if clean_chunk:
+                    multiline_lines.append(clean_chunk)
+                continue
+            else:
+                flush_multiline()
+
             if line.startswith("- "):
                 if current_action:
                     data["actions"].append(current_action)
@@ -56,6 +76,10 @@ except ImportError:
                 key, val = line.split(":", 1)
                 key = key.strip()
                 val = val.strip()
+                if val in ("|", ">", "|-", ">-"):
+                    multiline_key = key
+                    multiline_lines = []
+                    continue
                 if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
                     val = val[1:-1]
                 if current_action is not None and key in ("title", "shell", "icon", "onclick", "description", "danger", "color"):
@@ -67,6 +91,8 @@ except ImportError:
                     if val.isdigit():
                         val = int(val)
                     data[key] = val
+
+        flush_multiline()
         if current_action:
             data["actions"].append(current_action)
         return data
