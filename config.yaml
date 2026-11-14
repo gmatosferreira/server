@@ -12,11 +12,23 @@ actions:
     onclick: execution-dialog
     color: "#06b6d4"
 
+  - title: Top RAM Processes
+    shell: top -b -n 1 -m | awk 'NR==1 { split($2, a, ":"); tot=a[2] } NR > 4 && $1 ~ /^[0-9]+$/ { cmd=""; for(i=9;i<=NF;i++) cmd=cmd (i>9?" ":"") $i; print $4, $1, (tot?tot:1015624), cmd }' | sort -rn | head -n 15 | awk 'BEGIN { printf "%-7s %-12s %-8s %s\n", "PID", "ACTUAL RAM", "% RAM", "COMMAND" } { mb = sprintf("%.1f MB", $1 / 1024); pct = sprintf("%.1f%%", ($1 / $3) * 100); cmd=""; for(i=4;i<=NF;i++) cmd=cmd (i>4?" ":"") $i; printf "%-7s %-12s %-8s %s\n", $2, mb, pct, cmd }'
+    icon: memory
+    onclick: execution-dialog
+    color: "#ec4899"
+
   - title: List Media Files
     shell: echo "=== /srv/storage/media/ ===" && ls -lh /srv/storage/media/ && echo "" && echo "=== /srv/storage/media/incomplete/ ===" && ls -lh /srv/storage/media/incomplete/
     icon: folder
     onclick: execution-dialog
     color: "#8b5cf6"
+
+  - title: Services Status
+    shell: rc-status
+    icon: gear
+    onclick: execution-dialog
+    color: "#64748b"
 
   - title: Transmission Status
     shell: rc-service transmission-daemon status
