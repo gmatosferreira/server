@@ -7,7 +7,7 @@ listenAddress: "0.0.0.0"
 
 actions:
   - title: System Resources
-    shell: echo "=== MEMORY USAGE (free -m) ===" && free -m && echo "" && echo "=== DISK USAGE (df -h) ===" && df -h
+    shell: free -m | awk '/Mem:/ { printf "RAM:  %dM / %dM (%d%% used, %dM avail)\n", $3, $2, int(($3/$2)*100), ($7?$7:$4) } /Swap:/ { printf "SWAP: %dM / %dM\n", $3, $2 }' && df -h | awk '$6 == "/" { printf "DISK: %s / %s (%s used, %s free)\n", $3, $2, $5, $4 }'
     icon: cpu
     onclick: execution-dialog
     color: "#06b6d4"
