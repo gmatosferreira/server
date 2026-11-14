@@ -7,23 +7,13 @@ listenAddress: "0.0.0.0"
 
 actions:
   - title: System Resources
-    shell: |
-      echo "=== MEMORY USAGE (free -m) ===" && \
-      free -m && \
-      echo "" && \
-      echo "=== DISK USAGE (df -h) ===" && \
-      df -h
+    shell: echo "=== MEMORY USAGE (free -m) ===" && free -m && echo "" && echo "=== DISK USAGE (df -h) ===" && df -h
     icon: cpu
     onclick: execution-dialog
     color: "#06b6d4"
 
   - title: Clean Incomplete & Empty Folders
-    shell: |
-      echo "=== Cleaning incomplete downloads older than 6 hours ===" && \
-      find /srv/storage/media/incomplete/ -mindepth 1 -mmin +360 -delete -print && \
-      echo "=== Removing empty folders under /srv/storage/media/ ===" && \
-      find /srv/storage/media/ -mindepth 1 -type d -empty -delete -print && \
-      echo "Cleanup complete!"
+    shell: echo "=== Cleaning incomplete downloads older than 6 hours ===" && find /srv/storage/media/incomplete/ -mindepth 1 -mmin +360 -delete -print && echo "=== Removing empty folders under /srv/storage/media/ ===" && find /srv/storage/media/ -mindepth 1 -type d -empty -delete -print && echo "Cleanup complete!"
     icon: trash
     onclick: execution-dialog
     color: "#e11d48"
