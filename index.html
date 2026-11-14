@@ -115,22 +115,13 @@
             text-overflow: ellipsis;
         }
 
-        /* Danger variant */
-        .action-card.danger {
-            border: 1.5px solid #f87171;
+        .action-card.has-custom-color {
+            border: 1.5px solid var(--card-accent);
         }
 
-        .action-card.danger .card-main-icon {
-            color: #dc2626;
-        }
-
-        .action-card.danger:hover {
-            border-color: #dc2626;
-            box-shadow: 0 10px 26px rgba(220, 38, 38, 0.22);
-        }
-
-        .action-card.danger:hover .card-main-icon {
-            color: #b91c1c;
+        .action-card.has-custom-color:hover {
+            border-color: var(--card-accent);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
         }
 
         /* Modals */
@@ -426,11 +417,16 @@
             }
 
             grid.innerHTML = list.map(act => {
-                const isDanger = Boolean(act.danger);
+                const hex = act.color || '';
                 const iconClass = getBootstrapIcon(act.icon);
+
+                // Build inline styles dynamically from hex color
+                const cardStyle = hex ? `style="--card-accent: ${hex}; border-color: ${hex};"` : '';
+                const iconStyle = hex ? `style="color: ${hex};"` : '';
+
                 return `
-                    <div class="action-card ${isDanger ? 'danger' : ''}" onclick="handleCardClick(${act.id})">
-                        <i class="bi ${iconClass} card-main-icon"></i>
+                    <div class="action-card ${hex ? 'has-custom-color' : ''}" ${cardStyle} onclick="handleCardClick(${act.id})">
+                        <i class="bi ${iconClass} card-main-icon" ${iconStyle}></i>
                         <div class="card-label" title="${escapeHtml(act.title)}">${escapeHtml(act.title)}</div>
                     </div>
                 `;

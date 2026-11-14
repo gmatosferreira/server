@@ -8,6 +8,7 @@ import os
 import sys
 import json
 import time
+import re
 import subprocess
 from pathlib import Path
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
@@ -17,15 +18,26 @@ BASE_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = BASE_DIR / "config.yaml"
 INDEX_PATH = BASE_DIR / "index.html"
 
+def preprocess_yaml(content: str) -> str:
+    """Ensure unquoted hex colors like #ff0000 aren't discarded as comments."""
+    lines = []
+    for line in content.splitlines():
+        m = re.match(r'^(\s*[\w\-]+:\s*)(#[0-9a-fA-F]{3,8}\b)(.*)$', line)
+        if m:
+            line = f'{m.group(1)}"{m.group(2)}"{m.group(3)}'
+        lines.append(line)
+    return '\n'.join(lines)
+
 # Try importing pyyaml, fallback to minimal built-in parser if not installed
 try:
     import yaml
 
     def load_yaml(content: str):
-        return yaml.safe_load(content)
+        return yaml.safe_load(preprocess_yaml(content))
 except ImportError:
     def load_yaml(content: str):
         """Minimal fallback YAML parser for actions config."""
+        content = preprocess_yaml(content)
         data = {"actions": []}
         current_action = None
         for raw_line in content.splitlines():
@@ -46,7 +58,7 @@ except ImportError:
                 val = val.strip()
                 if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
                     val = val[1:-1]
-                if current_action is not None and key in ("title", "shell", "icon", "onclick", "description", "danger"):
+                if current_action is not None and key in ("title", "shell", "icon", "onclick", "description", "danger", "color"):
                     if key == "danger":
                         current_action[key] = val.lower() in ("true", "yes", "1")
                     else:
@@ -141,17 +153,21 @@ class OliveTinHandler(SimpleHTTPRequestHandler):
         # Sanitize actions for client (include id, title, icon, onclick, description)
         actions = []
         for idx, act in enumerate(config.get("actions", [])):
-            is_danger = act.get("danger")
-            if is_danger is None:
-                # Default heuristic if not explicitly configured
-                is_danger = act.get("icon") == "power" or "shutdown" in act.get("title", "").lower() or "power off" in act.get("title", "").lower()
+            color = str(act.get("color") or "").strip()
+            # If user provided hex without leading # (e.g. ff0000 or 10b981), prepend #
+            if re.match(r'^[0-9a-fA-F]{3,8}$', color):
+                color = f"#{color}"
+            # Only keep valid hex colors
+            if not re.match(r'^#[0-9a-fA-F]{3,8}$', color):
+                color = ""
+
             actions.append({
                 "id": idx,
                 "title": act.get("title", f"Action {idx + 1}"),
                 "icon": act.get("icon", "terminal"),
                 "onclick": act.get("onclick", "execution-dialog"),
                 "description": act.get("description", ""),
-                "danger": bool(is_danger)
+                "color": color
             })
 
         payload = {

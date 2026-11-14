@@ -42,7 +42,7 @@ actions:
     shell: poweroff
     icon: power
     onclick: confirm
-    danger: true
+    color: red
 ```
 
 ### Action Properties
@@ -53,7 +53,7 @@ actions:
 | `shell` | The shell command to execute on the server | `echo "Hello World!"` |
 | `icon` | Icon shown on the button (see supported icons below) | `smile`, `power`, `terminal` |
 | `onclick` | Interaction mode when clicked | `execution-dialog` or `confirm` |
-| `danger` | Optional boolean flag for destructive actions (adds red hover styling) | `true` or `false` |
+| `color` | Optional custom theme color (hex code only, e.g. `"#dc2626"` or `"#10b981"`) | `"#dc2626"`, `"#2563eb"` |
 
 ### Interaction Modes (`onclick`)
 

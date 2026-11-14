@@ -15,4 +15,4 @@ actions:
     shell: poweroff
     icon: power
     onclick: confirm
-    danger: true
+    color: "#dc2626"
