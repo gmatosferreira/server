@@ -1,0 +1,17 @@
+# OliveTin Configuration
+# Define all actions here - no need to edit HTML or shell server files!
+
+title: "Pentium 4 Server Power Control"
+port: 8888
+listenAddress: "0.0.0.0"
+
+actions:
+  - title: Say Hello
+    shell: echo "Hello World!"
+    icon: smile
+    onclick: execution-dialog
+
+  - title: Power Off Server
+    shell: poweroff
+    icon: power
+    onclick: confirm

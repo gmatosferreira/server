@@ -1,0 +1,17 @@
+#!/sbin/openrc-run
+# OpenRC service script for Alpine Linux
+
+name="OliveTin Server Control"
+description="Lightweight OliveTin-style web interface for server control"
+
+SERVER_DIR="${SERVER_DIR:-/git/server}"
+command="/usr/bin/python3"
+command_args="${SERVER_DIR}/server.py"
+command_background=true
+pidfile="/run/${RC_SVCNAME}.pid"
+directory="${SERVER_DIR}"
+
+depend() {
+    need net
+    after tailscale
+}
