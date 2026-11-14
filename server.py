@@ -46,8 +46,11 @@ except ImportError:
                 val = val.strip()
                 if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
                     val = val[1:-1]
-                if current_action is not None and key in ("title", "shell", "icon", "onclick", "description"):
-                    current_action[key] = val
+                if current_action is not None and key in ("title", "shell", "icon", "onclick", "description", "danger"):
+                    if key == "danger":
+                        current_action[key] = val.lower() in ("true", "yes", "1")
+                    else:
+                        current_action[key] = val
                 elif current_action is None:
                     if val.isdigit():
                         val = int(val)
@@ -77,6 +80,8 @@ class ConfigManager:
             return self._cache or {"title": "OliveTin Server", "actions": []}
 
 
+FAVICON_SVG = b"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect x="5" y="4" width="22" height="24" rx="7" fill="#64748b"/><path d="M5 9h22M5 23h22" stroke="#94a3b8" stroke-width="1.5"/><ellipse cx="16" cy="16" rx="6" ry="7.5" fill="#84cc16"/><circle cx="16" cy="16" r="2.2" fill="#ef4444"/></svg>"""
+
 config_mgr = ConfigManager(CONFIG_PATH)
 
 
@@ -90,11 +95,21 @@ class OliveTinHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path in ("/", "/index.html"):
             self.serve_index()
+        elif parsed.path in ("/favicon.ico", "/favicon.svg"):
+            self.serve_favicon()
         elif parsed.path == "/api/config":
             self.serve_config_api()
         else:
             # Fallback to standard static file serving if needed
             super().do_GET()
+
+    def serve_favicon(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "image/svg+xml")
+        self.send_header("Content-Length", str(len(FAVICON_SVG)))
+        self.send_header("Cache-Control", "public, max-age=86400")
+        self.end_headers()
+        self.wfile.write(FAVICON_SVG)
 
     def do_POST(self):
         parsed = urlparse(self.path)
@@ -126,12 +141,17 @@ class OliveTinHandler(SimpleHTTPRequestHandler):
         # Sanitize actions for client (include id, title, icon, onclick, description)
         actions = []
         for idx, act in enumerate(config.get("actions", [])):
+            is_danger = act.get("danger")
+            if is_danger is None:
+                # Default heuristic if not explicitly configured
+                is_danger = act.get("icon") == "power" or "shutdown" in act.get("title", "").lower() or "power off" in act.get("title", "").lower()
             actions.append({
                 "id": idx,
                 "title": act.get("title", f"Action {idx + 1}"),
                 "icon": act.get("icon", "terminal"),
                 "onclick": act.get("onclick", "execution-dialog"),
-                "description": act.get("description", "")
+                "description": act.get("description", ""),
+                "danger": bool(is_danger)
             })
 
         payload = {

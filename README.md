@@ -42,6 +42,7 @@ actions:
     shell: poweroff
     icon: power
     onclick: confirm
+    danger: true
 ```
 
 ### Action Properties
@@ -52,22 +53,27 @@ actions:
 | `shell` | The shell command to execute on the server | `echo "Hello World!"` |
 | `icon` | Icon shown on the button (see supported icons below) | `smile`, `power`, `terminal` |
 | `onclick` | Interaction mode when clicked | `execution-dialog` or `confirm` |
+| `danger` | Optional boolean flag for destructive actions (adds red hover styling) | `true` or `false` |
 
 ### Interaction Modes (`onclick`)
 
 - `execution-dialog`: Opens a modal dialog, runs the shell command, and displays stdout/stderr output with execution time and exit status.
 - `confirm`: Prompts the user with a confirmation dialog before executing (ideal for sensitive actions like reboot or power off), then displays the execution dialog with the result.
 
-### Supported Icons
+### Supported Icons (Bootstrap Icons)
 
-The web interface comes with built-in, offline SVG icons:
-- `smile`: Smiley face
-- `power`: Power switch icon
-- `terminal`: Command line / prompt
-- `restart`: Reload / sync arrows
-- `play`: Play triangle
-- `server`: Server chassis
-- `trash`: Trash can
+The UI now uses **Bootstrap Icons**. You can specify standard aliases or any icon name directly from the [Bootstrap Icons library](https://icons.getbootstrap.com/):
+
+- `smile`: `bi-emoji-smile`
+- `power`: `bi-power`
+- `terminal`: `bi-terminal`
+- `restart` / `reboot`: `bi-arrow-clockwise`
+- `server`: `bi-hdd-network`
+- `disk`: `bi-hdd`
+- `cpu`: `bi-cpu`
+- `memory`: `bi-memory`
+- `play` / `stop`: `bi-play-fill` / `bi-stop-fill`
+- Or any Bootstrap icon directly, e.g. `icon: bi-shield-lock`, `icon: wifi`, `icon: folder`
 
 ---
 
