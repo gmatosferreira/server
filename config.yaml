@@ -12,6 +12,12 @@ actions:
     onclick: execution-dialog
     color: "#06b6d4"
 
+  - title: List Media Files
+    shell: echo "=== /srv/storage/media/ ===" && ls -lh /srv/storage/media/ && echo "" && echo "=== /srv/storage/media/incomplete/ ===" && ls -lh /srv/storage/media/incomplete/
+    icon: folder
+    onclick: execution-dialog
+    color: "#8b5cf6"
+
   - title: Clean Incomplete & Empty Folders
     shell: 'echo "=== 1. Cleaning incomplete contents older than 6h ===" && ( [ -d /srv/storage/media/incomplete ] && find /srv/storage/media/incomplete/ -mindepth 1 -mmin +360 -delete -print 2>/dev/null || true ) && echo "=== 2. Cleaning folders without media ===" && for d in /srv/storage/media/*; do [ -d "$d" ] || continue; [ "$d" = "/srv/storage/media/incomplete" ] && continue; if [ $(find "$d" -type f \( -name "*.mp4" -o -name "*.mkv" -o -name "*.avi" -o -name "*.m4v" -o -name "*.mov" \) | wc -l) -eq 0 ]; then echo "Removing non-media folder: $d" && rm -rf "$d"; fi; done && echo "Cleanup complete!"'
     icon: trash
