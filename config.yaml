@@ -18,7 +18,7 @@ actions:
     color: "#f59e0b"
 
   - title: Update & Restart Service
-    shell: cd /git/server && git pull && rc-service p4web restart
+    shell: cd /git/server && git pull && rc-service server-control restart
     icon: cloud-arrow-down
     onclick: confirm
     color: "#3b82f6"
