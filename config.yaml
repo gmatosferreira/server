@@ -6,16 +6,39 @@ port: 8888
 listenAddress: "0.0.0.0"
 
 actions:
-  - title: Say Hello
-    shell: echo "Hello World!"
-    icon: smile
+  - title: System Resources
+    shell: |
+      echo "=== MEMORY USAGE (free -m) ===" && \
+      free -m && \
+      echo "" && \
+      echo "=== DISK USAGE (df -h) ===" && \
+      df -h
+    icon: cpu
     onclick: execution-dialog
+    color: "#06b6d4"
+
+  - title: Clean Incomplete & Empty Folders
+    shell: |
+      echo "=== Cleaning incomplete downloads older than 6 hours ===" && \
+      find /srv/storage/media/incomplete/ -mindepth 1 -mmin +360 -delete -print && \
+      echo "=== Removing empty folders under /srv/storage/media/ ===" && \
+      find /srv/storage/media/ -mindepth 1 -type d -empty -delete -print && \
+      echo "Cleanup complete!"
+    icon: trash
+    onclick: execution-dialog
+    color: "#e11d48"
 
   - title: Restart Server
     shell: reboot
     icon: restart
     onclick: confirm
     color: "#f59e0b"
+    
+  - title: Power Off Server
+    shell: poweroff
+    icon: power
+    onclick: confirm
+    color: "#dc2626"
 
   - title: Update & Restart Service
     shell: cd /git/server && git pull && (nohup sh -c "sleep 1; rc-service server-control restart || rc-service p4web restart" >/dev/null 2>&1 &) && echo "Update pulled! Service restarting in 1s..."
@@ -23,8 +46,4 @@ actions:
     onclick: confirm
     color: "#3b82f6"
 
-  - title: Power Off Server
-    shell: poweroff
-    icon: power
-    onclick: confirm
-    color: "#dc2626"
+
