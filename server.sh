@@ -5,6 +5,9 @@ while true; do
         echo -e "HTTP/1.1 200 OK\r\n\r\nShutting down..." | nc -l -p 8888 2>/dev/null
         poweroff
     else
-        echo -e "HTTP/1.1 200 OK\r\n\r\n$(cat /git/server/index.html)" | nc -l -p 8888 2>/dev/null
+        # Send proper HTTP headers followed by index.html content
+        echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n" > /tmp/http_res.txt
+        cat /git/server/index.html >> /tmp/http_res.txt
+        cat /tmp/http_res.txt | nc -l -p 8888 2>/dev/null
     fi
 done
