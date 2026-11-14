@@ -11,6 +11,18 @@ actions:
     icon: smile
     onclick: execution-dialog
 
+  - title: Restart Server
+    shell: reboot
+    icon: restart
+    onclick: confirm
+    color: "#f59e0b"
+
+  - title: Update & Restart Service
+    shell: cd /git/server && git pull && rc-service p4web restart
+    icon: cloud-arrow-down
+    onclick: confirm
+    color: "#3b82f6"
+
   - title: Power Off Server
     shell: poweroff
     icon: power
