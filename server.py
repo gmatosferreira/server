@@ -57,8 +57,15 @@ except ImportError:
             if line.startswith("actions:"):
                 continue
 
+            # Detect if a known action key starts here
+            known_key = False
+            if ":" in line and not line.startswith("- "):
+                candidate_key = line.split(":", 1)[0].strip()
+                if candidate_key in ("title", "shell", "icon", "onclick", "description", "danger", "color"):
+                    known_key = True
+
             # Detect indented continuation of multiline block scalar (| or >)
-            if multiline_key and (raw_line.startswith("    ") or raw_line.startswith("\t")):
+            if multiline_key and not known_key and not line.startswith("- "):
                 clean_chunk = line.rstrip("\\").rstrip("&").strip()
                 if clean_chunk:
                     multiline_lines.append(clean_chunk)
