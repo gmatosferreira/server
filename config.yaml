@@ -7,7 +7,7 @@ listenAddress: "0.0.0.0"
 
 actions:
   - title: System Resources
-    shell: free -m | awk '/Mem:/ { printf "RAM:  %dM / %dM (%d%% used, %dM avail)\n", $3, $2, int(($3/$2)*100), ($7?$7:$4) } /Swap:/ { printf "SWAP: %dM / %dM\n", $3, $2 }' && df -h | awk '$6 == "/" { printf "DISK: %s / %s (%s used, %s free)\n", $3, $2, $5, $4 }'
+    shell: 'free -m | awk ''/Mem:/ { printf "RAM:  %dM / %dM (%d%% used, %dM avail)\n", $3, $2, int(($3/$2)*100), ($7?$7:$4) } /Swap:/ { printf "SWAP: %dM / %dM\n", $3, $2 }'' && df -h | awk ''$6 == "/" { printf "DISK: %s / %s (%s used, %s free)\n", $3, $2, $5, $4 }'''
     icon: cpu
     onclick: execution-dialog
     color: "#06b6d4"
@@ -36,23 +36,23 @@ actions:
     onclick: execution-dialog
     color: "#10b981"
 
+  - title: Wi-Fi Link
+    shell: iw dev wlan0 link
+    icon: wifi
+    onclick: execution-dialog
+    color: "#14b8a6"
+
   - title: Restart Transmission
     shell: rc-service transmission-daemon restart
     icon: arrow-repeat
     onclick: confirm
-    color: "#6366f1"
+    color: "#e11d48"
 
   - title: Clean Incomplete & Empty Folders
     shell: 'echo "=== 1. Cleaning incomplete contents older than 6h ===" && ( [ -d /srv/storage/media/incomplete ] && find /srv/storage/media/incomplete/ -mindepth 1 -mmin +360 -delete -print 2>/dev/null || true ) && echo "=== 2. Cleaning folders without media ===" && for d in /srv/storage/media/*; do [ -d "$d" ] || continue; [ "$d" = "/srv/storage/media/incomplete" ] && continue; if [ $(find "$d" -type f \( -name "*.mp4" -o -name "*.mkv" -o -name "*.avi" -o -name "*.m4v" -o -name "*.mov" \) | wc -l) -eq 0 ]; then echo "Removing non-media folder: $d" && rm -rf "$d"; fi; done && echo "Cleanup complete!"'
     icon: trash
     onclick: execution-dialog
     color: "#e11d48"
-
-  - title: Wi-Fi Link
-    shell: iw dev wlan0 link
-    icon: wifi
-    onclick: execution-dialog
-    color: "#14b8a6"
 
   - title: Restart Server
     shell: reboot
