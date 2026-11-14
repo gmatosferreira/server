@@ -19,7 +19,7 @@ actions:
     color: "#ec4899"
 
   - title: List Media Files
-    shell: echo "=== /srv/storage/media/ ===" && ls -lh /srv/storage/media/ && echo "" && echo "=== /srv/storage/media/incomplete/ ===" && ls -lh /srv/storage/media/incomplete/
+    shell: ls -lhR /srv/storage/media/
     icon: folder
     onclick: execution-dialog
     color: "#8b5cf6"
