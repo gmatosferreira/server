@@ -37,12 +37,20 @@ actions:
     shell: echo "Hello World!"
     icon: smile
     onclick: execution-dialog
+    group: General
+
+  - title: Transmission Web UI
+    url: http://xp:9091
+    icon: broadcast
+    color: "#10b981"
+    group: Links
 
   - title: Power Off Server
     shell: poweroff
     icon: power
     onclick: confirm
-    color: red
+    color: "#dc2626"
+    group: Power
 ```
 
 ### Action Properties
@@ -50,10 +58,23 @@ actions:
 | Field | Description | Example |
 | :--- | :--- | :--- |
 | `title` | The button label shown in the UI | `Say Hello` |
-| `shell` | The shell command to execute on the server | `echo "Hello World!"` |
+| `shell` | The shell command to execute on the server (omit if using `url`) | `echo "Hello World!"` |
+| `url` | Optional URL to open in a new tab (`link` is also accepted as an alias) | `http://xp:9091` |
+| `group` | Optional group name to organize buttons under labeled sections | `System`, `Media`, `Power` |
 | `icon` | Icon shown on the button (see supported icons below) | `smile`, `power`, `terminal` |
-| `onclick` | Interaction mode when clicked | `execution-dialog` or `confirm` |
+| `onclick` | Interaction mode when clicked (for `shell` actions) | `execution-dialog` or `confirm` |
 | `color` | Optional custom theme color (hex code only, e.g. `"#dc2626"` or `"#10b981"`) | `"#dc2626"`, `"#2563eb"` |
+
+### Button Groups (`group`)
+
+- Add a `group` field to actions to organize them into separate labeled sections in the UI.
+- Groups appear in the order they are first defined in `config.yaml`.
+- If no actions define a `group`, all buttons render in a single flat grid.
+
+### Link Buttons (`url`)
+
+- Use `url` (or `link`) instead of `shell` to create a shortcut button that opens in a new browser tab (`target="_blank"`).
+- Link buttons display a subtle external-link indicator in the top-right corner.
 
 ### Interaction Modes (`onclick`)
 

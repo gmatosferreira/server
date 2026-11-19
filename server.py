@@ -61,7 +61,7 @@ except ImportError:
             known_key = False
             if ":" in line and not line.startswith("- "):
                 candidate_key = line.split(":", 1)[0].strip()
-                if candidate_key in ("title", "shell", "icon", "onclick", "description", "danger", "color"):
+                if candidate_key in ("title", "shell", "icon", "onclick", "description", "danger", "color", "group", "url", "link"):
                     known_key = True
 
             # Detect indented continuation of multiline block scalar (| or >)
@@ -89,7 +89,7 @@ except ImportError:
                     continue
                 if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
                     val = val[1:-1]
-                if current_action is not None and key in ("title", "shell", "icon", "onclick", "description", "danger", "color"):
+                if current_action is not None and key in ("title", "shell", "icon", "onclick", "description", "danger", "color", "group", "url", "link"):
                     if key == "danger":
                         current_action[key] = val.lower() in ("true", "yes", "1")
                     else:
@@ -200,7 +200,9 @@ class OliveTinHandler(SimpleHTTPRequestHandler):
                 "icon": act.get("icon", "terminal"),
                 "onclick": act.get("onclick", "execution-dialog"),
                 "description": act.get("description", ""),
-                "color": color
+                "color": color,
+                "group": str(act.get("group") or "").strip(),
+                "url": str(act.get("url") or act.get("link") or "").strip()
             })
 
         payload = {

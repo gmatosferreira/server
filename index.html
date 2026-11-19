@@ -46,8 +46,27 @@
             max-width: 1000px;
             width: 100%;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+            gap: 28px;
+        }
+
+        .action-group {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .group-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #475569;
+            text-align: center;
         }
 
         .actions-grid {
@@ -76,6 +95,21 @@
             justify-content: space-between;
             transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s;
             user-select: none;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .link-badge {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            font-size: 13px;
+            color: #94a3b8;
+            transition: color 0.15s;
+        }
+
+        .action-card:hover .link-badge {
+            color: #475569;
         }
 
         /* Mobile 2-column layout */
@@ -349,10 +383,8 @@
 </head>
 <body>
     <!-- Main Content -->
-    <main class="content">
-        <div id="actions-grid" class="actions-grid">
-            <div class="empty-view">Loading actions...</div>
-        </div>
+    <main id="actions-container" class="content">
+        <div class="empty-view">Loading actions...</div>
     </main>
 
     <!-- Execution Dialog Modal -->
@@ -444,7 +476,7 @@
                 actions = data.actions || [];
                 renderCards(actions);
             } catch (err) {
-                document.getElementById('actions-grid').innerHTML = `
+                document.getElementById('actions-container').innerHTML = `
                     <div class="empty-view" style="color: #dc2626;">
                         Failed to connect to server.<br>
                         <small style="color: #64748b;">${err.message}</small>
@@ -453,26 +485,63 @@
             }
         }
 
+        function buildCardHtml(act) {
+            const hex = act.color || '';
+            const iconClass = getBootstrapIcon(act.icon);
+            const cardStyle = hex ? `style="--card-accent: ${hex}; border-color: ${hex};"` : '';
+            const iconStyle = hex ? `style="color: ${hex};"` : '';
+            const cls = `action-card ${hex ? 'has-custom-color' : ''}`;
+
+            if (act.url) {
+                return `
+                    <a class="${cls}" ${cardStyle} href="${escapeHtml(act.url)}" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-box-arrow-up-right link-badge" title="Opens in new tab"></i>
+                        <i class="bi ${iconClass} card-main-icon" ${iconStyle}></i>
+                        <div class="card-label" title="${escapeHtml(act.title)}">${escapeHtml(act.title)}</div>
+                    </a>
+                `;
+            }
+
+            return `
+                <div class="${cls}" ${cardStyle} onclick="handleCardClick(${act.id})">
+                    <i class="bi ${iconClass} card-main-icon" ${iconStyle}></i>
+                    <div class="card-label" title="${escapeHtml(act.title)}">${escapeHtml(act.title)}</div>
+                </div>
+            `;
+        }
+
         function renderCards(list) {
-            const grid = document.getElementById('actions-grid');
+            const container = document.getElementById('actions-container');
             if (!list.length) {
-                grid.innerHTML = '<div class="empty-view">No actions configured in config.yaml.</div>';
+                container.innerHTML = '<div class="empty-view">No actions configured in config.yaml.</div>';
                 return;
             }
 
-            grid.innerHTML = list.map(act => {
-                const hex = act.color || '';
-                const iconClass = getBootstrapIcon(act.icon);
+            const hasGroups = list.some(act => act.group);
+            if (!hasGroups) {
+                container.innerHTML = `<div class="actions-grid">${list.map(buildCardHtml).join('')}</div>`;
+                return;
+            }
 
-                // Build inline styles dynamically from hex color
-                const cardStyle = hex ? `style="--card-accent: ${hex}; border-color: ${hex};"` : '';
-                const iconStyle = hex ? `style="color: ${hex};"` : '';
+            // Preserve group order of first appearance
+            const groupOrder = [];
+            const grouped = new Map();
+            for (const act of list) {
+                const g = act.group || '';
+                if (!grouped.has(g)) {
+                    grouped.set(g, []);
+                    groupOrder.push(g);
+                }
+                grouped.get(g).push(act);
+            }
 
+            container.innerHTML = groupOrder.map(groupName => {
+                const cardsHtml = grouped.get(groupName).map(buildCardHtml).join('');
                 return `
-                    <div class="action-card ${hex ? 'has-custom-color' : ''}" ${cardStyle} onclick="handleCardClick(${act.id})">
-                        <i class="bi ${iconClass} card-main-icon" ${iconStyle}></i>
-                        <div class="card-label" title="${escapeHtml(act.title)}">${escapeHtml(act.title)}</div>
-                    </div>
+                    <section class="action-group">
+                        ${groupName ? `<div class="group-title">${escapeHtml(groupName)}</div>` : ''}
+                        <div class="actions-grid">${cardsHtml}</div>
+                    </section>
                 `;
             }).join('');
         }
