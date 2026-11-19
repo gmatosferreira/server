@@ -623,13 +623,32 @@
                 durEl.textContent = `${result.duration}s`;
 
                 const ansiUp = typeof AnsiUp !== 'undefined' ? new AnsiUp() : null;
-                const renderAnsi = (s) => ansiUp ? ansiUp.ansi_to_html(s) : escapeHtml(s);
+                const colorizePlain = (raw) => {
+                    let s = escapeHtml(raw);
+                    // Directory headers (/path/to/dir:) and section headers (=== ... ===)
+                    s = s.replace(/^(===.+===)$/gm, '<span style="color:#38bdf8;font-weight:600;">$1</span>');
+                    s = s.replace(/^(\/[^\n:]+:)$/gm, '<span style="color:#38bdf8;font-weight:600;">$1</span>');
+                    // Key labels at line start (RAM:, SWAP:, DISK:, Runlevel:, etc.)
+                    s = s.replace(/^(\s*[A-Za-z][A-Za-z0-9 _\-\/]*:)(?=\s)/gm, '<span style="color:#93c5fd;">$1</span>');
+                    // Unix file permissions (drwxrwxrwx, -rw-rw-rw-)
+                    s = s.replace(/^([d\-lcbps][rwxstST\-]{9})\b/gm, '<span style="color:#94a3b8;">$1</span>');
+                    // Status keywords
+                    s = s.replace(/\b(started|Connected|Completed|active|online|OK)\b/gi, '<span style="color:#4ade80;font-weight:600;">$1</span>');
+                    s = s.replace(/\b(stopped|crashed|failed|error|offline|Not connected)\b/gi, '<span style="color:#f87171;font-weight:600;">$1</span>');
+                    // Sizes, percentages, bitrates, signal dBm
+                    s = s.replace(/\b(\d+(?:\.\d+)?\s?(?:[KMGTP]i?B|[KMGTP]|%|dBm|MBit\/s|MHz|ms))\b/g, '<span style="color:#fbbf24;">$1</span>');
+                    return s;
+                };
+                const renderOutput = (s) => {
+                    if (ansiUp && /\x1b\[/.test(s)) return ansiUp.ansi_to_html(s);
+                    return colorizePlain(s);
+                };
 
                 let html = '';
-                if (result.stdout) html += renderAnsi(result.stdout);
+                if (result.stdout) html += renderOutput(result.stdout);
                 if (result.stderr) {
                     if (html) html += '\n';
-                    html += `<span style="color:#f87171;">[stderr]\n${renderAnsi(result.stderr)}</span>`;
+                    html += `<span style="color:#f87171;">[stderr]\n${renderOutput(result.stderr)}</span>`;
                 }
                 if (!html.trim()) html = '<span style="color:#64748b;">(Command produced no output)</span>';
                 outEl.innerHTML = html;
