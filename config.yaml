@@ -34,7 +34,21 @@ actions:
     icon: wifi
     onclick: execution-dialog
     color: "#14b8a6"
-    group: System
+    group: Network
+
+  - title: Network Daily
+    shell: vnstat -d
+    icon: calendar-day
+    onclick: execution-dialog
+    color: "#0284c7"
+    group: Network
+
+  - title: Network Hourly
+    shell: vnstat -h
+    icon: clock-history
+    onclick: execution-dialog
+    color: "#0369a1"
+    group: Network
 
   # --- Media ---
   - title: Transmission Web UI
@@ -55,6 +69,13 @@ actions:
     icon: broadcast
     onclick: execution-dialog
     color: "#10b981"
+    group: Media
+
+  - title: Transmission Stats
+    shell: transmission-remote localhost:9091 -st
+    icon: bar-chart
+    onclick: execution-dialog
+    color: "#0ea5e9"
     group: Media
 
   - title: Restart Transmission
