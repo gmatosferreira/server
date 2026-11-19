@@ -51,6 +51,12 @@ actions:
     group: Network
 
   # --- Media ---
+  - title: Transmissionic
+    url: http://xp:9093/
+    icon: magnet
+    color: "#6366f1"
+    group: Media
+
   - title: Transmission Web UI
     url: http://xp:9091
     icon: broadcast
@@ -91,6 +97,20 @@ actions:
     onclick: execution-dialog
     color: "#e11d48"
     group: Media
+
+  # --- Backrest ---
+  - title: Backrest Web UI
+    url: http://xp:9898
+    icon: cloud-check
+    color: "#10b981"
+    group: Backrest
+
+  - title: Backrest Status
+    shell: rc-service backrest status
+    icon: activity
+    onclick: execution-dialog
+    color: "#0ea5e9"
+    group: Backrest
 
   # --- Power & Maintenance ---
   - title: Restart Server
