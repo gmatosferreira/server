@@ -250,6 +250,10 @@ class OliveTinHandler(SimpleHTTPRequestHandler):
     def execute_command(self, cmd: str) -> dict:
         start_time = time.time()
         print(f"[>] Executing shell command: {cmd}")
+        env = os.environ.copy()
+        env.setdefault("TERM", "xterm-256color")
+        env["FORCE_COLOR"] = "1"
+        env["CLICOLOR_FORCE"] = "1"
         try:
             proc = subprocess.run(
                 cmd,
@@ -257,7 +261,8 @@ class OliveTinHandler(SimpleHTTPRequestHandler):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                timeout=120
+                timeout=120,
+                env=env
             )
             duration = round(time.time() - start_time, 2)
             return {
